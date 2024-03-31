@@ -5,5 +5,9 @@ export const routes: Routes = [
     {
         path: '',
         component: PipeFrictionComponent
+    },
+    {
+        path: 'cs1-pipe-friction',
+        component: PipeFrictionComponent
     }
 ];
