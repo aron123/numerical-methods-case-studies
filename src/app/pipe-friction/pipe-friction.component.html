@@ -1,18 +1,113 @@
 <div class="row">
-    <div class="cl-md-12">
+    <div class="col-md-12">
         <h1>Csősúrlódás</h1>
-        <small>8.4. fejezet</small>
+        <small>A 8.4. fejezet alapján.</small>
         <hr>
 
         <p>
             A csövekben áramló folyadékok fizikai tulajdonságainak meghatározása fontos különböző
             mérnöki és tudományos területeken, például a gépészetben és a repüléstudományban.
-            A <span class="fst-italic">súrlódási tényező</span> kiszámítására turbulens áramlás
+            A <span class="fst-italic">súrlódási tényező</span> (<app-latex inputString="$f$"></app-latex>)
+            kiszámítására turbulens áramlás
             esetén az ún. „Colebrook-egyenlet” alkalmazható:
         </p>
         <p class="text-center">
-            <app-latex inputString="$0 = \frac{1}{\sqrt{f}} + 2.0 \log \left( \frac{\epsilon}{3.7D} + \frac{2.51}{Re\sqrt{f}} \right)$"></app-latex>
+            <app-latex
+                inputString="$0 = \frac{1}{\sqrt{f}} + 2.0 \log \left( \frac{\epsilon}{3.7D} + \frac{2.51}{Re\sqrt{f}} \right)$"></app-latex>
         </p>
+        <p>Ahol:</p>
+        <ul>
+            <li><app-latex inputString="$\epsilon$"></app-latex> a csőfal durvasága (m),</li>
+            <li><app-latex inputString="$D$"></app-latex> a cső átmérője (m),</li>
+            <li>
+                <app-latex inputString="$Re$"></app-latex> a Reynolds-szám:
+                <app-latex inputString="$Re = \frac{\rho V D}{\mu}$"></app-latex>, ahol:
+                <ul>
+                    <li><app-latex inputString="$\rho$"></app-latex> a folyadék sűrűsége (kg/m<sup>3</sup>),</li>
+                    <li><app-latex inputString="$V$"></app-latex> a sebesség (m/s),</li>
+                    <li><app-latex inputString="$\mu$"></app-latex> a dinamikus viszkozitás (N * s/m<sup>2</sup>).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <p>
+            Az esettanulmány bemutatja, hogyan lehet alkalmazni a tárgyalt numerikus módszereket a súrlódási tényező
+            (<app-latex inputString="$f$"></app-latex>) meghatározására, sima, vékony csőben, levegő áramlása esetén.
+            Fontos megjegyezni, hogy <app-latex inputString="$f$"></app-latex> értéke általában 0,008 és 0,8 között
+            alakul.
+        </p>
+
+        <p>Számoljunk az alábbi paraméterekkel!</p>
+
+        <form class="row" [formGroup]="pipeFrictionForm">
+            <div class="col-md-6">
+                <label for="epsilon" class="form-label">
+                    <app-latex inputString="$\epsilon$"></app-latex> [m]:
+                </label>
+                <input type="number" step="0.000001" class="form-control" id="epsilon" formControlName="epsilon">
+            </div>
+            <div class="col-md-6">
+                <label for="micro" class="form-label">
+                    <app-latex inputString="$\mu$"></app-latex> [N * s/m<sup>2</sup>]:
+                </label>
+                <input type="number" step="0.000001" class="form-control" id="micro" formControlName="micro">
+            </div>
+            <div class="col-md-6">
+                <label for="d" class="form-label">
+                    <app-latex inputString="$D$"></app-latex> [m]:
+                </label>
+                <input type="number" step="0.001" class="form-control" id="d" formControlName="d">
+            </div>
+            <div class="col-md-6">
+                <label for="v" class="form-label">
+                    <app-latex inputString="$V$"></app-latex> [m/s]:
+                </label>
+                <input type="number" step="1" class="form-control" id="v" formControlName="v">
+            </div>
+            <div class="col-md-6">
+                <label for="rho" class="form-label">
+                    <app-latex inputString="$\rho$"></app-latex> [kg/m<sup>3</sup>]:
+                </label>
+                <input type="number" step="0.01" class="form-control" id="rho" formControlName="rho">
+            </div>
+        </form>
+
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <button class="btn btn-outline-primary" (click)="calculate()">Számol</button>
+            </div>
+        </div>
+
+        @if(showResults) {
+        <div id="result">
+            <h2>Megoldási lehetőségek</h2>
+
+            <p>A Reynolds-szám a következőképpen számítható ki:</p>
+            <p class="text-center">
+                <app-latex [inputString]="reynoldsFormula"></app-latex>
+            </p>
+            <p>Ezt követően a paramétereinket a Colebrook-egyenletbe illesztve a következő függvényt kaphatjuk:</p>
+            <p class="text-center">
+                <app-latex [inputString]="colebrookFormula"></app-latex>
+            </p>
+            <p>
+                Az egyenlet gyökének meghatározása előtt célszerű lehet a függvényt grafikonon ábrázolni.
+                Ez alapján szűkíthető a keresési tartomány.
+            </p>
+            <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart"
+                [stroke]="chartOptions.stroke" [xaxis]="chartOptions.xaxis" [yaxis]="chartOptions.yaxis"
+                [annotations]="chartOptions.annotations"></apx-chart>
+
+            <h3>Felező módszer</h3>
+            <p>
+                Mivel a keresési intervallum határai ismertek (<app-latex inputString="$x_{l}=0.008, x_{u}=0.08$"></app-latex>),
+                az egyenlet gyökét zárt módszerek segítségével, pl. felező módszerrel is kereshetjük.
+            </p>
+
+            <h3>Newton-Raphson módszer</h3>
         
+
+        </div>
+        }
     </div>
 </div>

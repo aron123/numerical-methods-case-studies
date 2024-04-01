@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { LatexService } from "../services/math-jax.service";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { extractMath } from 'extract-math'
@@ -10,7 +10,7 @@ import { extractMath } from 'extract-math'
   templateUrl: './latex.component.html',
   styleUrl: './latex.component.css'
 })
-export class LatexComponent {
+export class LatexComponent implements OnChanges {
   
   @Input({ required: true })
   inputString!: string;
@@ -21,7 +21,10 @@ export class LatexComponent {
 
   constructor(private domSanitizer: DomSanitizer, private latexService: LatexService) {}
 
-  ngOnInit() {
+  ngOnChanges() {
+    this._html = [];
+    this._safeHtml = undefined;
+
     // Break the string into segments ('text', 'inline', and 'display')
     const segments = extractMath(this.inputString, {
       delimiters: {
