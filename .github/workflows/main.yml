@@ -17,7 +17,7 @@ jobs:
         build_configuration: production
         base_href: /numerical-methods-case-studies/
         deploy_branch: gh-pages
-        angular_dist_build_folder: dist/numerical-methods-cs
+        angular_dist_build_folder: dist/numerical-methods-cs/browser
 
 permissions:
   contents: write
