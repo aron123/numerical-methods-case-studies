@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { LatexComponent } from '../latex/latex.component';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { PipeFrictionParameters } from '../models/pipe-friction.models';
+import { IterativeValue, PipeFrictionParameters } from '../models/pipe-friction.models';
 import { PipeFrictionService } from '../services/pipe-friction.service';
 import { ApexAnnotations, ApexAxisChartSeries, ApexChart, ApexStroke, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
+import { PercentPipe } from '@angular/common';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -17,7 +18,7 @@ export type ChartOptions = {
 @Component({
   selector: 'app-pipe-friction',
   standalone: true,
-  imports: [LatexComponent, ReactiveFormsModule, NgApexchartsModule],
+  imports: [LatexComponent, ReactiveFormsModule, NgApexchartsModule, PercentPipe],
   templateUrl: './pipe-friction.component.html',
   styleUrl: './pipe-friction.component.css'
 })
@@ -41,16 +42,22 @@ export class PipeFrictionComponent {
   reynoldsFormula!: string;
   colebrookFormula!: string;
 
+  bisectionValues: IterativeValue[] = [];
+  bisectionError = '';
+
   chartOptions!: ChartOptions;
 
   calculate() {
+    this.bisectionError = '';
+    this.bisectionValues = [];
+
     const params = this.pipeFrictionForm.value as PipeFrictionParameters;
     
     this.reynolds = this.pipefrictionService.calculateReynolds(params);
     this.reynoldsFormula = `$Re = \\frac{\\rho V D}{\\mu} = \\frac{${params.rho} \\cdot ${params.v} \\cdot ${params.d}}{${params.micro}} = ${this.reynolds.toFixed(4)}$`;
     this.colebrookFormula = `$g(f) = \\frac{1}{\\sqrt{f}} + 2.0 \\log \\left(\\frac{${params.epsilon}}{3.7 \\cdot ${params.d}} + \\frac{2.51}{${this.reynolds.toFixed(4)}\\sqrt{f}} \\right)$`;
     
-    const plotValues = this.pipefrictionService.calculatePlot(params, 0.008, 0.8);
+    const plotValues = this.pipefrictionService.calculatePlot(params, 0.008, 0.08);
     
     this.chartOptions = {
       series: [
@@ -68,6 +75,12 @@ export class PipeFrictionComponent {
 
     this.showResults = true;
     
+    this.pipefrictionService.findRootBisection((params, x) => this.pipefrictionService.colebrookFunction(params, x), params, 0.008, 0.08, 0.00000001, 30)
+      .subscribe({
+        next: val => this.bisectionValues.push(val),
+        error: err => this.bisectionError = err
+      });
+
     this.scrollToResults();
   }
 

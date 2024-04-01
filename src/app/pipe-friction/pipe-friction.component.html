@@ -94,19 +94,58 @@
                 Az egyenlet gyökének meghatározása előtt célszerű lehet a függvényt grafikonon ábrázolni.
                 Ez alapján szűkíthető a keresési tartomány.
             </p>
-            <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart"
-                [stroke]="chartOptions.stroke" [xaxis]="chartOptions.xaxis" [yaxis]="chartOptions.yaxis"
+            <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart" [stroke]="chartOptions.stroke"
+                [xaxis]="chartOptions.xaxis" [yaxis]="chartOptions.yaxis"
                 [annotations]="chartOptions.annotations"></apx-chart>
 
             <h3>Felező módszer</h3>
             <p>
-                Mivel a keresési intervallum határai ismertek (<app-latex inputString="$x_{l}=0.008, x_{u}=0.08$"></app-latex>),
+                Mivel a keresési intervallum határai ismertek (<app-latex
+                    inputString="$x_{l}=0.008, x_{u}=0.08$"></app-latex>),
                 az egyenlet gyökét zárt módszerek segítségével, pl. felező módszerrel is kereshetjük.
             </p>
 
-            <h3>Newton-Raphson módszer</h3>
-        
+            @if(bisectionValues.length) {
+            <table class="table table-sm table-striped">
+                <thead>
+                    <tr>
+                        <th>Iteráció</th>
+                        <th class="text-center">Eredmény</th>
+                        <th class="text-end">Hiba (<app-latex inputString="$\epsilon_{a}$"></app-latex>)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for(value of bisectionValues; track $index) {
+                    <tr>
+                        <td>{{ value.iteration }}</td>
+                        <td class="text-center">{{ value.result.toFixed(8) }}</td>
+                        <td class="text-end">{{ value.error | percent:'1.5-5' }}</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            }
 
+            @if(bisectionError) {
+                <div class="alert alert-danger" role="alert">{{ bisectionError }}</div>
+            } @else {
+                <p>
+                    A felező módszer {{ bisectionValues.length }} iteráció alatt megfelelő pontosságú eredményre vezetett.
+                    Az algoritmus bár helyes eredményt produkál, számítási időt tekintve nem feltétlenül elég hatékony.
+                    Kisebb alkalmazások esetén ennek nincs lehetősége, de amennyiben sok számítást kell elvégeznünk,
+                    más módszerek gyorsabbnak bizonyulhatnak. A nyílt módszerek közül tekintsük meg a Newton-Raphson módszert!
+                </p>
+            }
+
+            <h3>Newton-Raphson módszer</h3>
+
+            <!-- TODO -->
+
+            <p>
+                Az eredményekből látható, hogy a Newton-Raphson módszer gyorsabban teljesít, de ehhez jó kezdeti tippre van szükség.
+                Továbbá elmondható, hogy nincs olyan általános módszer, ami minden típusú problémára a legjobban működik.
+                A felhasználóknak szükséges megérteniük a különböző numerikus módszerek előnyeit és hátrányait.   
+            </p>
         </div>
         }
     </div>

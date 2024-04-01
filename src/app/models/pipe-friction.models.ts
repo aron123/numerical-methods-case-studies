@@ -10,3 +10,9 @@ export interface Point2D {
     x: number;
     y: number;
 }
+
+export interface IterativeValue {
+    iteration: number;
+    result: number;
+    error: number;
+}
