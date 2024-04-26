@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { LatexComponent } from '../latex/latex.component';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IterativeValue, PipeFrictionParameters } from '../models/pipe-friction.models';
 import { PipeFrictionService } from '../services/pipe-friction.service';
 import { ApexAnnotations, ApexAxisChartSeries, ApexChart, ApexStroke, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
@@ -18,7 +18,7 @@ export type ChartOptions = {
 @Component({
   selector: 'app-pipe-friction',
   standalone: true,
-  imports: [LatexComponent, ReactiveFormsModule, NgApexchartsModule, PercentPipe],
+  imports: [LatexComponent, FormsModule, ReactiveFormsModule, NgApexchartsModule, PercentPipe],
   templateUrl: './pipe-friction.component.html',
   styleUrl: './pipe-friction.component.css'
 })
@@ -44,6 +44,10 @@ export class PipeFrictionComponent {
 
   bisectionValues: IterativeValue[] = [];
   bisectionError = '';
+
+  newtonInitialGuess = 0.008;
+  newtonValues: IterativeValue[] = [];
+  newtonError = '';
 
   chartOptions!: ChartOptions;
 
@@ -75,13 +79,26 @@ export class PipeFrictionComponent {
 
     this.showResults = true;
     
-    this.pipefrictionService.findRootBisection((params, x) => this.pipefrictionService.colebrookFunction(params, x), params, 0.008, 0.08, 0.00000001, 30)
-      .subscribe({
-        next: val => this.bisectionValues.push(val),
-        error: err => this.bisectionError = err
-      });
+    this.pipefrictionService.findRootBisection(
+      (params, x) => this.pipefrictionService.colebrookFunction(params, x), params, 0.008, 0.08, 0.00000001, 30)
+        .subscribe({
+          next: val => this.bisectionValues.push(val),
+          error: err => this.bisectionError = err
+        });
 
     this.scrollToResults();
+  }
+
+  calculateNewtonRaphson() {
+    this.newtonError = '';
+    this.newtonValues = [];
+    const params = this.pipeFrictionForm.value as PipeFrictionParameters;
+
+    this.pipefrictionService.findRootNewtonRaphson(
+      (params, x) => this.pipefrictionService.colebrookFunction(params, x),
+      (params, x) => this.pipefrictionService.colebrookDerivativeFunction(params, x),
+      params, this.newtonInitialGuess, 0.00000001, 30
+    ).subscribe();
   }
 
   scrollToResults() {

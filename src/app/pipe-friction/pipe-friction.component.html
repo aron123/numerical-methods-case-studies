@@ -127,24 +127,40 @@
             }
 
             @if(bisectionError) {
-                <div class="alert alert-danger" role="alert">{{ bisectionError }}</div>
-            } @else {
-                <p>
-                    A felező módszer {{ bisectionValues.length }} iteráció alatt megfelelő pontosságú eredményre vezetett.
-                    Az algoritmus bár helyes eredményt produkál, számítási időt tekintve nem feltétlenül elég hatékony.
-                    Kisebb alkalmazások esetén ennek nincs lehetősége, de amennyiben sok számítást kell elvégeznünk,
-                    más módszerek gyorsabbnak bizonyulhatnak. A nyílt módszerek közül tekintsük meg a Newton-Raphson módszert!
-                </p>
+            <div class="alert alert-danger" role="alert">{{ bisectionError }}</div>
+            }
+            @else {
+            <p>
+                A felező módszer {{ bisectionValues.length }} iteráció alatt megfelelő pontosságú eredményre vezetett.
+                Az algoritmus bár helyes eredményt produkál, számítási időt tekintve nem feltétlenül elég hatékony.
+                Kisebb alkalmazások esetén ennek nincs lehetősége, de amennyiben sok számítást kell elvégeznünk,
+                más módszerek gyorsabbnak bizonyulhatnak. A nyílt módszerek közül tekintsük meg a Newton-Raphson
+                módszert!
+            </p>
             }
 
             <h3>Newton-Raphson módszer</h3>
+            <p><!-- kb. 0.066-ig jó, felette divergál, ideális kezdőpont --></p>
 
-            <!-- TODO -->
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="initialGuess" class="form-label">
+                        Kezdőpont (<app-latex inputString="$x_{0}$"></app-latex>):
+                    </label>
+                    <input type="number" step="0.001" class="form-control" id="initialGuess"
+                        [(ngModel)]="newtonInitialGuess">
+                </div>
+                <div class="col-md-3 mt-auto">
+                    <button class="btn btn-outline-primary" (click)="calculateNewtonRaphson()">Számol</button>
+                </div>
+            </div>
 
             <p>
-                Az eredményekből látható, hogy a Newton-Raphson módszer gyorsabban teljesít, de ehhez jó kezdeti tippre van szükség.
-                Továbbá elmondható, hogy nincs olyan általános módszer, ami minden típusú problémára a legjobban működik.
-                A felhasználóknak szükséges megérteniük a különböző numerikus módszerek előnyeit és hátrányait.   
+                Az eredményekből látható, hogy a Newton-Raphson módszer gyorsabban teljesít, de ehhez jó kezdeti tippre
+                van szükség.
+                Továbbá elmondható, hogy nincs olyan általános módszer, ami minden típusú problémára a legjobban
+                működik.
+                A felhasználóknak szükséges megérteniük a különböző numerikus módszerek előnyeit és hátrányait.
             </p>
         </div>
         }

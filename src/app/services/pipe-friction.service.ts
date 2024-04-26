@@ -20,6 +20,13 @@ export class PipeFrictionService {
     return (1 / Math.sqrt(f)) + 2 * Math.log10(epsilon / (3.7 * d) + 2.51 / (re * Math.sqrt(f)));
   }
 
+  colebrookDerivativeFunction(params: PipeFrictionParameters, f: number): number {
+    const { epsilon, d } = params;
+    const re = this.calculateReynolds(params);
+
+    return -0.5 * Math.pow(f, -3 / 2) * (1 + 5.02 / Math.log(10) * (epsilon / (3.7 * d) + 2.51 / (re * Math.sqrt(f))) * epsilon);
+  }
+
   calculatePlot(params: PipeFrictionParameters, lowerBound: number, higherBound: number, step: number = 0.001): Point2D[] {
     const result = [];
 
@@ -70,6 +77,45 @@ export class PipeFrictionService {
 
       subscriber.error(`${maxIterations} iteráció alatt nem sikerült megtalálni az egyenlet gyökét.`);
       subscriber.complete();
+    });
+  }
+
+  findRootNewtonRaphson(func: (params: PipeFrictionParameters, x: number) => number,
+    deriv: (params: PipeFrictionParameters, x: number) => number,
+    params: PipeFrictionParameters, initialGuess: number, tolerance: number, maxIterations: number
+  ): Observable<IterativeValue> {
+
+    return new Observable(subscriber => {
+      let x = initialGuess;
+      let iteration = 0;
+      let prevApproximation;
+
+      while (iteration < maxIterations) {
+        iteration++;
+
+        prevApproximation = x;
+
+        const fx = func(params, x);
+        const dfx = deriv(params, x);
+
+        x = x - fx / dfx;
+
+        const error = Math.abs((x - prevApproximation) / x);
+
+        if (Math.abs(fx) < tolerance) {
+          subscriber.next({ iteration, result: x, error });
+          return subscriber.complete();
+        }
+
+        if (dfx === 0) {
+          subscriber.error(`A derivált értéke 0 az x = ${x} helyen, emiatt a módszer nem alkalmazható.`);
+          return subscriber.complete();
+        }
+
+        subscriber.next({ iteration, result: x, error });
+      }
+
+      subscriber.error(`${maxIterations} iteráció alatt nem sikerült megtalálni az egyenlet gyökét.`);
     });
   }
 }
