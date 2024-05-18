@@ -140,7 +140,12 @@
             }
 
             <h3>Newton-Raphson módszer</h3>
-            <p><!-- kb. 0.066-ig jó, felette divergál, ideális kezdőpont --></p>
+            <p>
+                Mivel az egyenlet viszonylag egyszerűen differenciálható, a Newton-Raphson módszer jó választás lehet.
+                Például, ha kezdeti tippnek az intervallum kezdőpontját (<app-latex inputString="$x_{0}=0.008$"></app-latex>) választjuk,
+                az érték gyorsan konvergál.
+                Azonban, ha kezdeti tippnek az intervallum végpontját választjuk (<app-latex inputString="$x_{0}=0.08$"></app-latex>), az eljárás divergál!
+            </p>
 
             <div class="row">
                 <div class="col-md-4">
@@ -155,13 +160,37 @@
                 </div>
             </div>
 
-            <p>
-                Az eredményekből látható, hogy a Newton-Raphson módszer gyorsabban teljesít, de ehhez jó kezdeti tippre
-                van szükség.
-                Továbbá elmondható, hogy nincs olyan általános módszer, ami minden típusú problémára a legjobban
-                működik.
-                A felhasználóknak szükséges megérteniük a különböző numerikus módszerek előnyeit és hátrányait.
-            </p>
+            @if(newtonValues.length) {
+                <table class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th>Iteráció</th>
+                            <th class="text-center">Eredmény</th>
+                            <th class="text-end">Hiba (<app-latex inputString="$\epsilon_{a}$"></app-latex>)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for(value of newtonValues; track $index) {
+                        <tr>
+                            <td>{{ value.iteration }}</td>
+                            <td class="text-center">{{ value.result.toFixed(8) }}</td>
+                            <td class="text-end">{{ value.error | percent:'1.5-5' }}</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            @if(newtonError) {
+                <div class="alert alert-danger" role="alert">{{ newtonError }}</div>
+                }
+            @else {
+                <p>
+                    Az eredményekből látható, hogy a Newton-Raphson módszer gyorsabban teljesít ({{ newtonValues.length }} iteráció alatt adott megfelelő pontosságú eredményt),
+                    de ehhez jó kezdeti tippre volt szükség.<br>Nem létezik azonban általános módszer, ami minden típusú problémára optimálisan alkalmazható,
+                    a felhasználóknak szükséges megérteniük a különböző numerikus módszerek előnyeit és hátrányait.
+                </p>
+            }
         </div>
         }
     </div>

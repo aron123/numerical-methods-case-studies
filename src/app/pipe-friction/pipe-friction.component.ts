@@ -80,7 +80,7 @@ export class PipeFrictionComponent {
     this.showResults = true;
     
     this.pipefrictionService.findRootBisection(
-      (params, x) => this.pipefrictionService.colebrookFunction(params, x), params, 0.008, 0.08, 0.00000001, 30)
+      (params, x) => this.pipefrictionService.colebrookFunction(params, x), params, 0.008, 0.08, 0.000001, 30)
         .subscribe({
           next: val => this.bisectionValues.push(val),
           error: err => this.bisectionError = err
@@ -97,8 +97,11 @@ export class PipeFrictionComponent {
     this.pipefrictionService.findRootNewtonRaphson(
       (params, x) => this.pipefrictionService.colebrookFunction(params, x),
       (params, x) => this.pipefrictionService.colebrookDerivativeFunction(params, x),
-      params, this.newtonInitialGuess, 0.00000001, 30
-    ).subscribe();
+      params, this.newtonInitialGuess, 0.000001, 30
+    ).subscribe({
+      next: value => this.newtonValues.push(value),
+      error: err => this.newtonError = err
+    });
   }
 
   scrollToResults() {
