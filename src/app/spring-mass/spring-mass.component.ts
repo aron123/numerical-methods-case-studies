@@ -8,6 +8,7 @@ interface Mass {
   width: number;
   height: number;
   color: string;
+  text: string;
 }
 
 interface Spring {
@@ -15,6 +16,7 @@ interface Spring {
   mass2: Mass;
   stiffness: number;
   length: number;
+  doubleSpring: boolean;
 }
 
 @Component({
@@ -33,25 +35,25 @@ export class SpringMassComponent implements AfterViewInit {
   context!: CanvasRenderingContext2D;
 
   masses: Mass[] = [
-    { x: 100, y: 0, width: 75, height: 0, color: 'white' },
-    { x: 100, y: 100, width: 75, height: 50, color: 'red' },
-    { x: 100, y: 250, width: 75, height: 50, color: 'green' },
-    { x: 100, y: 400, width: 75, height: 50, color: 'blue' },
+    { x: 100, y: 0, width: 75, height: 0, color: 'white', text: '' },
+    { x: 100, y: 50, width: 75, height: 50, color: '#55cbcd', text: 'm₁' },
+    { x: 100, y: 160, width: 75, height: 50, color: '#97c1a9', text: 'm₂' },
+    { x: 100, y: 270, width: 75, height: 50, color: '#cbaacb', text: 'm₃' },
 
-    { x: 400, y: 0, width: 75, height: 0, color: 'white' },
-    { x: 400, y: 150, width: 75, height: 50, color: 'red' },
-    { x: 400, y: 325, width: 75, height: 50, color: 'green' },
-    { x: 400, y: 525, width: 75, height: 50, color: 'blue' }
+    { x: 400, y: 0, width: 75, height: 0, color: 'white', text: '' },
+    { x: 400, y: 100, width: 75, height: 50, color: '#55cbcd', text: 'm₁' },
+    { x: 400, y: 250, width: 75, height: 50, color: '#97c1a9', text: 'm₂' },
+    { x: 400, y: 400, width: 75, height: 50, color: '#cbaacb', text: 'm₃' }
   ];
 
   springs: Spring[] = [
-    { mass1: this.masses[0], mass2: this.masses[1], stiffness: 0.1, length: 200 },
-    { mass1: this.masses[1], mass2: this.masses[2], stiffness: 0.1, length: 200 },
-    { mass1: this.masses[2], mass2: this.masses[3], stiffness: 0.1, length: 200 },
+    { mass1: this.masses[0], mass2: this.masses[1], stiffness: 0.1, length: 200, doubleSpring: false },
+    { mass1: this.masses[1], mass2: this.masses[2], stiffness: 0.1, length: 200, doubleSpring: true },
+    { mass1: this.masses[2], mass2: this.masses[3], stiffness: 0.1, length: 200, doubleSpring: false },
 
-    { mass1: this.masses[4], mass2: this.masses[5], stiffness: 0.1, length: 200 },
-    { mass1: this.masses[5], mass2: this.masses[6], stiffness: 0.1, length: 200 },
-    { mass1: this.masses[6], mass2: this.masses[7], stiffness: 0.1, length: 200 }
+    { mass1: this.masses[4], mass2: this.masses[5], stiffness: 0.1, length: 200, doubleSpring: false },
+    { mass1: this.masses[5], mass2: this.masses[6], stiffness: 0.1, length: 200, doubleSpring: true },
+    { mass1: this.masses[6], mass2: this.masses[7], stiffness: 0.1, length: 200, doubleSpring: false }
   ];
 
   direction = 1;
@@ -82,14 +84,25 @@ export class SpringMassComponent implements AfterViewInit {
     this.context.fillRect(mass.x, mass.y, mass.width, mass.height);
 
     this.context.beginPath();
-    this.context.setLineDash([15, 5]); // Set the pattern of dashes (5px dash, 15px gap)
+    this.context.setLineDash([15, 5]);
     this.context.moveTo(0, mass.y);
     this.context.lineTo(this.canvas.nativeElement.width, mass.y);
     this.context.strokeStyle = mass.color;
     this.context.lineWidth = 1;
     this.context.stroke();
-    this.context.setLineDash([]); // Reset the line dash pattern to solid
+    this.context.setLineDash([]);
     this.context.closePath();
+
+    this.context.fillStyle = 'white';
+    this.context.font = '16px Arial';
+
+    const centerX = mass.x + mass.width / 2;
+    const centerY = mass.y + mass.height / 2;
+    const textMetrics = this.context.measureText(mass.text);
+    const textWidth = textMetrics.width;
+    const textHeight = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+
+    this.context.fillText(mass.text, centerX - textWidth / 2, centerY + textHeight / 2);
   }
 
   drawArrow(mass1: Mass, mass2: Mass, text: string) {
@@ -98,12 +111,11 @@ export class SpringMassComponent implements AfterViewInit {
     const fromy = mass1.y;
     const toy = mass2.y;
     
-    const headlen = 10; // length of head in pixels
+    const headlen = 10;
     const dx = tox - fromx;
     const dy = toy - fromy;
     const angle = Math.atan2(dy, dx);
 
-    // Starting path of the arrow from the start square to the end square and drawing the stroke
     this.context.beginPath();
     this.context.moveTo(fromx, fromy);
     this.context.lineTo(tox, toy);
@@ -111,7 +123,6 @@ export class SpringMassComponent implements AfterViewInit {
     this.context.lineWidth = 2;
     this.context.stroke();
 
-    // Drawing the arrow head
     this.context.beginPath();
     this.context.moveTo(tox, toy);
     this.context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
@@ -124,7 +135,6 @@ export class SpringMassComponent implements AfterViewInit {
     this.context.fillStyle = 'red';
     this.context.fill();
 
-    // Drawing the text in the center of the arrow
     const centerX = (fromx + tox) / 2;
     const centerY = (fromy + toy) / 2;
     this.context.fillStyle = 'black';
@@ -137,24 +147,36 @@ export class SpringMassComponent implements AfterViewInit {
     const numZigs = 10;
     const dy = (mass2.y - mass1.y) / numZigs;
     const amplitude = 10;
-
-    this.context.beginPath();
-    this.context.moveTo(mass1.x + mass1.width / 2, mass1.y + mass1.height / 2);
-
-    for (let i = 1; i < numZigs; i++) {
-      const x = mass1.x + mass1.width / 2 + (i % 2 === 0 ? amplitude : -amplitude);
-      const y = mass1.y + i * dy + mass1.height / 2;
-      this.context.lineTo(x, y);
+    
+    let offsets = [];
+    if (spring.doubleSpring) {
+      offsets = [ -20, 20 ];
+    } else {
+      offsets = [0]
     }
 
-    this.context.lineTo(mass2.x + mass2.width / 2, mass2.y + mass2.height / 2);
-    this.context.strokeStyle = 'black';
-    this.context.lineWidth = 2;
-    this.context.stroke();
-    this.context.closePath();
+    for (const offset of offsets) {
+      this.context.beginPath();
+      this.context.moveTo(mass1.x + mass1.width / 2 + offset, mass1.y + mass1.height / 2);
+
+      for (let i = 1; i < numZigs; i++) {
+        const x = mass1.x + offset + mass1.width / 2 + (i % 2 === 0 ? amplitude : -amplitude);
+        const y = mass1.y + i * dy + mass1.height / 2;
+        this.context.lineTo(x, y);
+      }
+
+      this.context.lineTo(mass2.x + mass2.width / 2 + offset, mass2.y + mass2.height / 2);
+      this.context.strokeStyle = 'black';
+      this.context.lineWidth = 2;
+      this.context.stroke();
+      this.context.closePath();
+    }
   }
 
   draw() {
+    const lastMass = this.masses[this.masses.length - 1];
+    this.canvas.nativeElement.height = lastMass.y + lastMass.height;
+
     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
 
     this.springs.forEach(this.drawSpring.bind(this));
@@ -163,7 +185,5 @@ export class SpringMassComponent implements AfterViewInit {
     this.drawArrow(this.masses[1], this.masses[5], 'x₁');
     this.drawArrow(this.masses[2], this.masses[6], 'x₂');
     this.drawArrow(this.masses[3], this.masses[7], 'x₃');
-
-    requestAnimationFrame(this.draw.bind(this));
   }
 }

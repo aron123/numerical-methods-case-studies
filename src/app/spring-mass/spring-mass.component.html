@@ -6,10 +6,130 @@
 
         <p>
             A tömeg-rúgó modelleket széles körben alkalmazzák a gépészeti tudományokban és egyéb mérnöki területeken.
+            Az 1. ábra egy ilyen rendszert szemléltet: a baloldalon a rendszer kiengedés előtti, azaz a rugók megnyúlása
+            vagy összenyomódása előtti; a jobboldalon pedig végső, nyugalmi állapotát láthatjuk.
         </p>
 
+        <p>
+            A két állapot közötti elmozdulás mértékét (<app-latex inputString="$x_{1}, x_{2}, x_{3}$"></app-latex>) lokális
+            koordináták mentén mérjük, a súlyok kezdőpozíciójához viszonyítva.
+        </p>
+
+        <div class="text-center">
+            <img src="assets/spring-mass-figure-static.png" alt="Spring-mass system model">
+            <p><span class="fw-bold">1. ábra.</span> Egy egyszerű tömeg-rúgó rendszer modellje.</p>
+        </div>
+
+        <p>
+            A rendszer matematikai modellje Newton második törvényének, valamint a fizikai erők egyensúlyának
+            felhasználásával írható le.
+            Minden súlyra érvényesül az alábbi tulajdonság:
+        </p>
+        <p class="text-center">
+            <app-latex inputString="$m \frac{d^2 x}{dt^2} = F_D - F_U$"></app-latex>
+        </p>
+
+        <p>
+            Jelen példában az egyszerűség kedvéért azt feltételezzük, hogy a rúgók minden mechanikai tulajdonsága
+            megegyezik,
+            és érvényesül rájuk Hooke törvénye. Ebben az esetben például az <app-latex inputString="$m_1$"></app-latex>
+            súlyra ható,
+            felfelé irányuló erő maga a rúgóerő:
+        </p>
+        <p class="text-center">
+            <app-latex inputString="$F_{U} = k \cdot x_{1}$"></app-latex>, ahol <app-latex
+                inputString="$k$"></app-latex> a rúgó merevsége
+            és <app-latex inputString="$x_{1}$"></app-latex> a megnyúlás.
+        </p>
+        <p>
+            Az ugyanezen súlyra ható, lefelé mutató erő az alatta található két rúgó erejéből, valamint a gravitációs
+            erőből tevődik össze:
+        </p>
+        <p class="text-center">
+            <app-latex inputString="$F_D = k(x_2 - x_1) + k(x_2 - x_1) = m_1 \cdot g$"></app-latex>
+        </p>
+        <p>
+            A súlyra ható erő felfelé és lefelé mutató komponenseinek képleteit a fenti egyenletbe helyettesítve
+            egy másodrendű differenciálegyenletet kapunk, ami <app-latex inputString="$m_1$"></app-latex> elmozdulását
+            adja meg az idő függvényében:
+        </p>
+        <p class="text-center">
+            <app-latex
+                inputString="$m_1 \frac{d^2 x_1}{dt^2} = 2k(x_2 - x_1) + m_1 g - k x_1 \hspace{4em} (1.)$"></app-latex>
+        </p>
+        <p>
+            Az egyenlet ebben a formában nem oldható meg, hiszen az eredmény <app-latex inputString="$m_1$"></app-latex>
+            és
+            <app-latex inputString="$m_2$"></app-latex> elmozdulásától is függ. Alkossunk tehát képleteket a másik két
+            súlyra is:
+        </p>
+        <p class="text-center">
+            <app-latex
+                inputString="$m_2 \frac{d^2 x_2}{dt^2} = k(x_3 - x_2) + m_2 g - 2k(x_2 - x_1) \hspace{4em} (2.)$"></app-latex>
+        </p>
+        <p class="text-center">
+            <app-latex inputString="$m_3 \frac{d^2 x_3}{dt^2} = m_3 g - k(x_3 - x_2) \hspace{4em} (3.)$"></app-latex>
+        </p>
+        <p>
+            Az (1.), (2.), (3.) egyenletek háromismeretlenes egyenletrendszert alkotnak, mely használható arra, hogy
+            kiszámoljuk a súlyok elmozdulását a rendszer végső, nyugalmi állapotában. Ennek érdekében az egyenletekben
+            szereplő deriváltakat helyettesítsük 0-val, hogy a következőt kapjuk:
+        </p>
+        <p class="text-center">
+            <app-latex inputString="$3kx_1 - 2kx_2 = m_1 g$"></app-latex>
+            <br>
+            <app-latex inputString="$-2kx_1 + 3kx_2 - kx_3 = m_2 g$"></app-latex>
+            <br>
+            <app-latex inputString="$-kx_2 + kx_3 = m_3 g$"></app-latex>
+        </p>
+        <p>
+            Az automatizált feldolgozáshoz az egyenletrendszert mátrixok segítségével szükséges leírnunk:
+        </p>
+        <p class="text-center">
+            <app-latex inputString="$[K]\{X\} = \{W\}$"></app-latex>
+        </p>
+        Ahol:
+        <ul>
+            <li>
+                <app-latex
+                    inputString="$[K] = \begin{bmatrix} 3k & -2k & 0 \\ -2k & 3k & -k \\ 0 & -k & k \end{bmatrix}$"></app-latex>
+                a <span class="fst-italic">merevségi mátrix</span>,
+            </li>
+            <li>
+                <app-latex inputString="$\{X\}$"></app-latex> az ismeretleneket tartalmazó oszlopvektor,
+            </li>
+            <li>
+                <app-latex inputString="$\{W\}$"></app-latex> az <app-latex inputString="$m \cdot g$"></app-latex>
+                súlyokat tartalmazó oszlopvektor.
+            </li>
+        </ul>
+
+        <h2>LU dekompozíció</h2>
+        <p>
+            Az egyenletrendszer megoldásához végezzük el a <app-latex inputString="$[K]$"></app-latex> mátrix LU dekompozícióját!
+        </p>
+
+        <!-- TODO: bemenet, számítások -->
         <button class="btn btn-outline-primary" (click)="calculateEquation()">Számol</button>
 
-        <canvas width="800" height="600" #figure></canvas>
+        <p>
+            A művelet eredményeként az alábbi L és U mátrixokat kaptuk:
+            K = L * U = konkrét mátrixok
+            <!-- TODO: K mátrix konkrét értékekkel, L mátrix, U mátrix -->
+        </p>
+
+        <p>
+            Ezek segítségével az ismeretlenek értéke kiszámítható:
+            <!-- TODO: x1, x2, x3 -->
+        </p>
+
+        <p>
+            Az elmozdulásokat ezután grafikusan is ábrázolhatjuk:
+        </p>
+
+        <div class="text-center m-2">
+            <canvas width="800" height="600" #figure></canvas>
+            <!-- TODO: konkrét x1, x2, x3 értékek kiírása -->
+        </div>
     </div>
 </div>
