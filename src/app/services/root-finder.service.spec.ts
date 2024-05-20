@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PipeFrictionService } from './pipe-friction.service';
+import { RootFinderService } from './root-finder.service';
 
 describe('PipeFrictionService', () => {
-  let service: PipeFrictionService;
+  let service: RootFinderService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PipeFrictionService);
+    service = TestBed.inject(RootFinderService);
   });
 
   it('should be created', () => {

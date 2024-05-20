@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { LatexComponent } from '../latex/latex.component';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IterativeValue, PipeFrictionParameters } from '../models/pipe-friction.models';
-import { PipeFrictionService } from '../services/pipe-friction.service';
+import { RootFinderService } from '../services/root-finder.service';
 import { ApexAnnotations, ApexAxisChartSeries, ApexChart, ApexStroke, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
 import { PercentPipe } from '@angular/common';
 
@@ -24,7 +24,7 @@ export type ChartOptions = {
 })
 export class PipeFrictionComponent {
 
-  pipefrictionService = inject(PipeFrictionService);
+  rootFinderService = inject(RootFinderService);
 
   formBuilder = inject(FormBuilder);
 
@@ -57,11 +57,11 @@ export class PipeFrictionComponent {
 
     const params = this.pipeFrictionForm.value as PipeFrictionParameters;
     
-    this.reynolds = this.pipefrictionService.calculateReynolds(params);
+    this.reynolds = this.rootFinderService.calculateReynolds(params);
     this.reynoldsFormula = `$Re = \\frac{\\rho V D}{\\mu} = \\frac{${params.rho} \\cdot ${params.v} \\cdot ${params.d}}{${params.micro}} = ${this.reynolds.toFixed(4)}$`;
     this.colebrookFormula = `$g(f) = \\frac{1}{\\sqrt{f}} + 2.0 \\log \\left(\\frac{${params.epsilon}}{3.7 \\cdot ${params.d}} + \\frac{2.51}{${this.reynolds.toFixed(4)}\\sqrt{f}} \\right)$`;
     
-    const plotValues = this.pipefrictionService.calculatePlot(params, 0.008, 0.08);
+    const plotValues = this.rootFinderService.calculatePlot(params, 0.008, 0.08);
     
     this.chartOptions = {
       series: [
@@ -79,8 +79,8 @@ export class PipeFrictionComponent {
 
     this.showResults = true;
     
-    this.pipefrictionService.findRootBisection(
-      (params, x) => this.pipefrictionService.colebrookFunction(params, x), params, 0.008, 0.08, 0.000001, 30)
+    this.rootFinderService.findRootBisection(
+      (params, x) => this.rootFinderService.colebrookFunction(params, x), params, 0.008, 0.08, 0.000001, 30)
         .subscribe({
           next: val => this.bisectionValues.push(val),
           error: err => this.bisectionError = err
@@ -94,9 +94,9 @@ export class PipeFrictionComponent {
     this.newtonValues = [];
     const params = this.pipeFrictionForm.value as PipeFrictionParameters;
 
-    this.pipefrictionService.findRootNewtonRaphson(
-      (params, x) => this.pipefrictionService.colebrookFunction(params, x),
-      (params, x) => this.pipefrictionService.colebrookDerivativeFunction(params, x),
+    this.rootFinderService.findRootNewtonRaphson(
+      (params, x) => this.rootFinderService.colebrookFunction(params, x),
+      (params, x) => this.rootFinderService.colebrookDerivativeFunction(params, x),
       params, this.newtonInitialGuess, 0.000001, 30
     ).subscribe({
       next: value => {
