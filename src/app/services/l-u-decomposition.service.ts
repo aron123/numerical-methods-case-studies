@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class LUDecompositionService {
   private L: number[][];
   private U: number[][];
@@ -76,27 +74,4 @@ export class LUDecompositionService {
 
     return x;
   }
-
-  // Example usage:
-  /*const A = [
-      [4, 3, 2],
-      [6, 3, 4],
-      [2, 1, 3]
-  ];
-  
-  const b = [13, 22, 7];
-  
-  const lu = new LUDecomposition(A);
-  
-  console.log("L matrix:");
-  console.log(lu.getL());
-  
-  console.log("U matrix:");
-  console.log(lu.getU());
-  
-  const solution = lu.solve(b);
-  
-  console.log("Solution vector x:");
-  console.log(solution);*/
-
 }

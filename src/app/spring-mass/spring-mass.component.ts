@@ -8,6 +8,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
   selector: 'app-spring-mass',
   standalone: true,
   imports: [ReactiveFormsModule, LatexComponent],
+  providers: [LUDecompositionService],
   templateUrl: './spring-mass.component.html',
   styleUrl: './spring-mass.component.css'
 })
