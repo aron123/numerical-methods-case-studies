@@ -32,6 +32,12 @@ export class DataAnalysisComponent implements OnInit {
     flow: 5.0
   }
 
+  solution = {
+    a0: NaN,
+    a1: NaN,
+    a2: NaN
+  };
+
   ngOnInit(): void {
     
   }
@@ -47,4 +53,38 @@ export class DataAnalysisComponent implements OnInit {
   addNewData() {
     this.experimentalData.push(Object.assign({}, this.newData));
   }
+
+  sum(nums: number[]) {
+    return nums.reduce((sum, value) => sum + value, 0);
+  }
+
+  calculateCoefficients() {
+    const dataCount = this.experimentalData.length;
+    const diameterLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.diameter)));
+    const slopeLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.slope)));
+    const diameterSquareLogSum = this.sum(this.experimentalData.map(data => Math.pow(Math.log10(data.diameter), 2)));
+    const slopeSquareLogSum = this.sum(this.experimentalData.map(data => Math.pow(Math.log10(data.slope), 2)));
+    const productLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.slope) * Math.log10(data.diameter), 2));
+
+    const flowLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.flow)));
+    const diameterFlowLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.diameter) * Math.log10(data.flow), 2));
+    const slopeFlowLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.slope) * Math.log10(data.flow), 2));
+
+    const equationMatrix = [
+      [ dataCount, diameterLogSum, slopeLogSum ],
+      [ diameterLogSum, diameterSquareLogSum, productLogSum ],
+      [ slopeLogSum, productLogSum, slopeSquareLogSum ]
+    ];
+
+    this.luDecompositionService.decompose(equationMatrix);
+
+    const solution = this.luDecompositionService.solve([ flowLogSum, diameterFlowLogSum, slopeFlowLogSum ]);
+
+    this.solution = {
+      a0: Math.pow(10, solution[0]),
+      a1: solution[1],
+      a2: solution[2]
+    };
+  }
+
 }
