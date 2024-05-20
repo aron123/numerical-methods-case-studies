@@ -1,33 +1,30 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { LatexComponent } from '../latex/latex.component';
 import { LUDecompositionService } from '../services/l-u-decomposition.service';
-
-interface Mass {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  color: string;
-  text: string;
-}
-
-interface Spring {
-  mass1: Mass;
-  mass2: Mass;
-  stiffness: number;
-  length: number;
-  doubleSpring: boolean;
-}
+import { Mass, Spring, SpringMassParameters } from '../models/spring-mass.models';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-spring-mass',
   standalone: true,
-  imports: [LatexComponent],
+  imports: [ReactiveFormsModule, LatexComponent],
   templateUrl: './spring-mass.component.html',
   styleUrl: './spring-mass.component.css'
 })
 export class SpringMassComponent implements AfterViewInit {
   luDecompositionService = inject(LUDecompositionService);
+
+  formBuilder = inject(FormBuilder);
+
+  springMassForm = this.formBuilder.group<SpringMassParameters>({
+    m1: 2,
+    m2: 3,
+    m3: 2.5,
+    k: 10
+  });
+
+  luDecompositionEquation = '';
+  equationSystemSolution = '';
 
   @ViewChild('figure')
   canvas!: ElementRef<HTMLCanvasElement>;
@@ -60,29 +57,52 @@ export class SpringMassComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.context = this.canvas.nativeElement.getContext('2d')!;
-    this.draw();
+  }
+
+  round(num: number, decimals: number = 2) {
+    return Number.isInteger(num) ? num : Number.prototype.toFixed.call(num || 0, decimals);
+  }
+
+  toLaTeX(matrix: number[][], w: number = 3, h: number = 3, decimals: number = 2) {
+    let result = "\\begin{bmatrix}";
+
+    for (let i = 0; i < h; i++) {
+      if (i != 0) {
+        result += " \\\\";
+      }
+
+      for (let j = 0; j < w; j++) {
+        result += (j == 0 ? ' ' : ' & ') + this.round(matrix[i][j], decimals);
+      }
+    }
+
+    result += " \\end{bmatrix}";
+
+    return result;
   }
 
   calculateEquation() {
+    const { m1, m2, m3, k } = this.springMassForm.value as SpringMassParameters;
+    const g = 9.81;
+
     const inputMatrix = [
-      [30, -20, 0],
-      [-20, 30, -10],
-      [0, -10, 10]
+      [3 * k, -2 * k, 0],
+      [-2 * k, 3 * k, -1 * k],
+      [0, -1 * k, k]
     ]
 
     this.luDecompositionService.decompose(inputMatrix);
+    this.luDecompositionEquation = `$$ ${this.toLaTeX(inputMatrix)} = ${this.toLaTeX(this.luDecompositionService.getL())} \\cdot ${this.toLaTeX(this.luDecompositionService.getU())} $$`;
+  
+    const solution = this.luDecompositionService.solve([m1 * g, m2 * g, m3 * g]);
+    this.equationSystemSolution = `$$ x_1 = ${this.round(solution[0])}, x_2 = ${this.round(solution[1])}, x_3 = ${this.round(solution[2])} $$`;
+  
+    this.draw(solution[0], solution[1], solution[2]);
 
-    console.log('L', this.luDecompositionService.getL());
-    console.log('U', this.luDecompositionService.getU());
-
-    const solution = this.luDecompositionService.solve([19.62, 29.43, 24.525]);
-    console.log('solution', solution);
+    this.scrollTo('#results');
   }
 
-  drawMass(mass: Mass) {
-    this.context.fillStyle = mass.color;
-    this.context.fillRect(mass.x, mass.y, mass.width, mass.height);
-
+  drawDashedLine(mass: Mass) {
     this.context.beginPath();
     this.context.setLineDash([15, 5]);
     this.context.moveTo(0, mass.y);
@@ -92,6 +112,11 @@ export class SpringMassComponent implements AfterViewInit {
     this.context.stroke();
     this.context.setLineDash([]);
     this.context.closePath();
+  }
+
+  drawMass(mass: Mass) {
+    this.context.fillStyle = mass.color;
+    this.context.fillRect(mass.x, mass.y, mass.width, mass.height);
 
     this.context.fillStyle = 'white';
     this.context.font = '16px Arial';
@@ -105,12 +130,12 @@ export class SpringMassComponent implements AfterViewInit {
     this.context.fillText(mass.text, centerX - textWidth / 2, centerY + textHeight / 2);
   }
 
-  drawArrow(mass1: Mass, mass2: Mass, text: string) {
-    const fromx = 700;
-    const tox = 700;
+  drawArrow(mass1: Mass, mass2: Mass, text: string, x: number) {
+    const fromx = x;
+    const tox = x;
     const fromy = mass1.y;
     const toy = mass2.y;
-    
+
     const headlen = 10;
     const dx = tox - fromx;
     const dy = toy - fromy;
@@ -147,10 +172,10 @@ export class SpringMassComponent implements AfterViewInit {
     const numZigs = 10;
     const dy = (mass2.y - mass1.y) / numZigs;
     const amplitude = 10;
-    
+
     let offsets = [];
     if (spring.doubleSpring) {
-      offsets = [ -20, 20 ];
+      offsets = [-20, 20];
     } else {
       offsets = [0]
     }
@@ -173,17 +198,27 @@ export class SpringMassComponent implements AfterViewInit {
     }
   }
 
-  draw() {
+  draw(x1: number, x2: number, x3: number) {
+    const scale = 20;
+    this.masses[5].y = this.masses[1].y + x1 * scale;
+    this.masses[6].y = this.masses[2].y + x2 * scale;
+    this.masses[7].y = this.masses[3].y + x3 * scale;
+
     const lastMass = this.masses[this.masses.length - 1];
     this.canvas.nativeElement.height = lastMass.y + lastMass.height;
 
     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
 
     this.springs.forEach(this.drawSpring.bind(this));
+    this.masses.forEach(this.drawDashedLine.bind(this));
     this.masses.forEach(this.drawMass.bind(this));
 
-    this.drawArrow(this.masses[1], this.masses[5], 'x₁');
-    this.drawArrow(this.masses[2], this.masses[6], 'x₂');
-    this.drawArrow(this.masses[3], this.masses[7], 'x₃');
+    this.drawArrow(this.masses[1], this.masses[5], `x₁ = ${this.round(x1)}`, 520);
+    this.drawArrow(this.masses[2], this.masses[6], `x₂ = ${this.round(x2)}`, 620);
+    this.drawArrow(this.masses[3], this.masses[7], `x₃ = ${this.round(x3)}`, 710);
+  }
+
+  scrollTo(id: string) {
+    setTimeout(() => document.querySelector(id)?.scrollIntoView(), 200);
   }
 }

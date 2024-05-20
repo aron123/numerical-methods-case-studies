@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-12">
-        <h1>Tömeg-rúgó rendszer</h1>
+        <h1>Tömeg-rúgó rendszerek</h1>
         <small>A 12.4. fejezet alapján.</small>
         <hr>
 
@@ -11,7 +11,8 @@
         </p>
 
         <p>
-            A két állapot közötti elmozdulás mértékét (<app-latex inputString="$x_{1}, x_{2}, x_{3}$"></app-latex>) lokális
+            A két állapot közötti elmozdulás mértékét (<app-latex inputString="$x_{1}, x_{2}, x_{3}$"></app-latex>)
+            lokális
             koordináták mentén mérjük, a súlyok kezdőpozíciójához viszonyítva.
         </p>
 
@@ -106,30 +107,65 @@
 
         <h2>LU dekompozíció</h2>
         <p>
-            Az egyenletrendszer megoldásához végezzük el a <app-latex inputString="$[K]$"></app-latex> mátrix LU dekompozícióját!
+            Az egyenletrendszer megoldásához végezzük el a <app-latex inputString="$[K]$"></app-latex> mátrix LU
+            dekompozícióját!
+            Ehhez adottak az alábbi értékek:
         </p>
 
-        <!-- TODO: bemenet, számítások -->
-        <button class="btn btn-outline-primary" (click)="calculateEquation()">Számol</button>
+        <form class="row" [formGroup]="springMassForm">
+            <div class="col-md-4">
+                <label for="m1" class="form-label">
+                    m<sub>1</sub> [kg]:
+                </label>
+                <input type="number" step="0.1" min="0" class="form-control" id="m1" formControlName="m1">
+            </div>
+            <div class="col-md-4">
+                <label for="m2" class="form-label">
+                    m<sub>2</sub> [kg]:
+                </label>
+                <input type="number" step="0.1" min="0" class="form-control" id="m2" formControlName="m2">
+            </div>
+            <div class="col-md-4">
+                <label for="m3" class="form-label">
+                    m<sub>3</sub> [kg]:
+                </label>
+                <input type="number" step="0.1" min="0" class="form-control" id="m3" formControlName="m3">
+            </div>
+            <div class="col-md-4">
+                <label for="k" class="form-label">
+                    k [kg/s<sup>2</sup>]:
+                </label>
+                <input type="number" step="0.1" min="0" class="form-control" id="k" formControlName="k">
+            </div>
+        </form>
 
-        <p>
-            A művelet eredményeként az alábbi L és U mátrixokat kaptuk:
-            K = L * U = konkrét mátrixok
-            <!-- TODO: K mátrix konkrét értékekkel, L mátrix, U mátrix -->
-        </p>
+        <div class="text-end">
+            <button class="btn btn-outline-primary" (click)="calculateEquation()">Számol</button>
+        </div>
 
-        <p>
-            Ezek segítségével az ismeretlenek értéke kiszámítható:
-            <!-- TODO: x1, x2, x3 -->
-        </p>
+        <!-- canvas -->
+        <div id="results" [class.d-none]="equationSystemSolution == ''">
+            <p>
+                Az egyenletrendszer megoldásához a K mátrixot először L és U mátrixokra bontjuk fel
+                (<app-latex inputString="$K = L \cdot U$"></app-latex>):
+            </p>
+            <p>
+                <app-latex [inputString]="luDecompositionEquation"></app-latex>
+            </p>
+            <p>
+                Az így kapott mátrixok felhasználásával pedig az ismeretlenek értéke kiszámítható:
+            </p>
+            <p>
+                <app-latex [inputString]="equationSystemSolution"></app-latex>
+            </p>
 
-        <p>
-            Az elmozdulásokat ezután grafikusan is ábrázolhatjuk:
-        </p>
+            <p>
+                Az elmozdulásokat ezután grafikusan is ábrázolhatjuk:
+            </p>
 
-        <div class="text-center m-2">
-            <canvas width="800" height="600" #figure></canvas>
-            <!-- TODO: konkrét x1, x2, x3 értékek kiírása -->
+            <div class="text-center m-2">
+                <canvas width="800" height="600" #figure></canvas>
+            </div>
         </div>
     </div>
 </div>

@@ -86,7 +86,7 @@ export class PipeFrictionComponent {
           error: err => this.bisectionError = err
         });
 
-    this.scrollToResults();
+    this.scrollTo('#result');
   }
 
   calculateNewtonRaphson() {
@@ -99,12 +99,15 @@ export class PipeFrictionComponent {
       (params, x) => this.pipefrictionService.colebrookDerivativeFunction(params, x),
       params, this.newtonInitialGuess, 0.000001, 30
     ).subscribe({
-      next: value => this.newtonValues.push(value),
+      next: value => {
+        this.newtonValues.push(value);
+        this.scrollTo('#newton-result');
+      },
       error: err => this.newtonError = err
     });
   }
 
-  scrollToResults() {
-    setTimeout(() => document.querySelector('#result')?.scrollIntoView(), 200);
+  scrollTo(id: string) {
+    setTimeout(() => document.querySelector(id)?.scrollIntoView(), 200);
   }
 }
