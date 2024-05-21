@@ -62,5 +62,7 @@
         <div class="text-end">
             <button class="btn btn-outline-primary" (click)="calculateCoefficients()">Számol</button>
         </div>
+
+        <plotly-plot [data]="scatterData" [layout]="scatterLayout" class="scatter-plot"></plotly-plot>
     </div>
 </div>
