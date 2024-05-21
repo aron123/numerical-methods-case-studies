@@ -5,6 +5,7 @@ import { IterativeValue, PipeFrictionParameters } from '../models/pipe-friction.
 import { RootFinderService } from '../services/root-finder.service';
 import { ApexAnnotations, ApexAxisChartSeries, ApexChart, ApexStroke, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
 import { PercentPipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -27,6 +28,8 @@ export class PipeFrictionComponent {
   rootFinderService = inject(RootFinderService);
 
   formBuilder = inject(FormBuilder);
+
+  router = inject(Router);
 
   pipeFrictionForm = this.formBuilder.group<PipeFrictionParameters>({
     rho: 1.23,
@@ -109,5 +112,10 @@ export class PipeFrictionComponent {
 
   scrollTo(id: string) {
     setTimeout(() => document.querySelector(id)?.scrollIntoView(), 200);
+  }
+
+  nextPage() {
+    this.scrollTo('nav');
+    this.router.navigateByUrl('/cs2-spring-mass');
   }
 }

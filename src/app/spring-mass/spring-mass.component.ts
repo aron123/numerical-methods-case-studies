@@ -3,6 +3,7 @@ import { LatexComponent } from '../latex/latex.component';
 import { LUDecompositionService } from '../services/l-u-decomposition.service';
 import { Mass, Spring, SpringMassParameters } from '../models/spring-mass.models';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-spring-mass',
@@ -16,6 +17,8 @@ export class SpringMassComponent implements AfterViewInit {
   luDecompositionService = inject(LUDecompositionService);
 
   formBuilder = inject(FormBuilder);
+
+  router = inject(Router);
 
   springMassForm = this.formBuilder.group<SpringMassParameters>({
     m1: 2,
@@ -221,5 +224,10 @@ export class SpringMassComponent implements AfterViewInit {
 
   scrollTo(id: string) {
     setTimeout(() => document.querySelector(id)?.scrollIntoView(), 200);
+  }
+
+  nextPage() {
+    this.scrollTo('nav');
+    this.router.navigateByUrl('cs3-experimental-data-analysis');
   }
 }

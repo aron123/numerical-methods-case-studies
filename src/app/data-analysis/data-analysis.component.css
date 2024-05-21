@@ -2,7 +2,7 @@ input[type="number"] {
     text-align: right;
 }
 
-#diameter, #slope {
+.inline-input {
     max-width: 75px;
     margin-top: 0;
     margin-bottom: 15px;

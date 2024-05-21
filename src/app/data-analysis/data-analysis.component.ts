@@ -6,6 +6,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import * as Plotly from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 import { DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
 PlotlyModule.plotlyjs = Plotly;
 
 @Component({
@@ -20,6 +21,8 @@ export class DataAnalysisComponent implements OnInit {
   luDecompositionService = inject(LUDecompositionService);
 
   formBuilder = inject(FormBuilder);
+
+  router = inject(Router);
 
   experimentalData: FlowExperimentData[] = [
     { diameter: 1, slope: 0.001, flow: 1.4 },
@@ -44,6 +47,8 @@ export class DataAnalysisComponent implements OnInit {
     a1: NaN,
     a2: NaN
   };
+
+  resultCalculated = false;
 
   scatterData: Plotly.Data[] = [];
   scatterLayout: Partial<Plotly.Layout> = {};
@@ -111,9 +116,12 @@ export class DataAnalysisComponent implements OnInit {
       a1: solution[1],
       a2: solution[2]
     };
+    
+    this.resultCalculated = true;
 
     this.drawScatterPlot();
-    this.regressionForm.patchValue({}); // trigger 
+    this.regressionForm.patchValue({});
+    this.scrollTo('#results');
   }
 
   regression(diameter: number, slope: number): number {
@@ -197,4 +205,12 @@ export class DataAnalysisComponent implements OnInit {
     this.scatterLayout = layout;
   }
 
+  scrollTo(id: string) {
+    setTimeout(() => document.querySelector(id)?.scrollIntoView(), 200);
+  }
+
+  nextPage() {
+    this.scrollTo('nav');
+    this.router.navigateByUrl('contact');
+  }
 }

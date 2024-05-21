@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-12">
-        <h1>Kísérleti adatok vizsgálata</h1>
+        <h1>Térfogatáram becslése lineáris regresszióval</h1>
         <small>A 20.4. fejezet alapján.</small>
         <hr>
 
@@ -16,29 +16,31 @@
             </thead>
             <tbody>
                 @for(data of experimentalData; track $index) {
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td class="text-end">{{ data.diameter }} ft</td>
-                        <td class="text-end">{{ data.slope}} ft/ft</td>
-                        <td class="text-end">{{ data.flow }} ft<sup>3</sup>/s</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-danger" (click)="deleteRow($index)">Törlés</button>
-                        </td>
-                    </tr> 
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="text-end">{{ data.diameter }} ft</td>
+                    <td class="text-end">{{ data.slope}} ft/ft</td>
+                    <td class="text-end">{{ data.flow }} ft<sup>3</sup>/s</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-danger" (click)="deleteRow($index)">Törlés</button>
+                    </td>
+                </tr>
                 }
                 <tr>
                     <td class="fw-bold pt-3 pb-3 align-middle">Új mérés:</td>
                     <td class="pt-3 pb-3">
                         <div class="input-group input-group-sm">
-                            <input type="number" id="diameter"  class="form-control" min="0" step="0.1" placeholder="Átmérő"  [(ngModel)]="newData.diameter">
+                            <input type="number" id="diameter" class="form-control form-control-sm" min="0" step="0.1"
+                                placeholder="Átmérő" [(ngModel)]="newData.diameter">
                             <div class="input-group-append">
-                              <span class="input-group-text">ft</span>
+                                <span class="input-group-text">ft</span>
                             </div>
                         </div>
                     </td>
                     <td class="pt-3 pb-3">
                         <div class="input-group input-group-sm">
-                            <input type="number" id="slope"  class="form-control form-control-sm" min="0" step="0.001" placeholder="Meredekség" [(ngModel)]="newData.slope">
+                            <input type="number" id="slope" class="form-control form-control-sm" min="0" step="0.001"
+                                placeholder="Meredekség" [(ngModel)]="newData.slope">
                             <div class="input-group-append">
                                 <span class="input-group-text">ft/ft</span>
                             </div>
@@ -46,7 +48,8 @@
                     </td>
                     <td class="pt-3 pb-3">
                         <div class="input-group input-group-sm">
-                            <input type="number" id="flow"  class="form-control form-control-sm" min="0" step="0.1"  placeholder="Térfogatáram"  [(ngModel)]="newData.flow">
+                            <input type="number" id="flow" class="form-control form-control-sm" min="0" step="0.1"
+                                placeholder="Térfogatáram" [(ngModel)]="newData.flow">
                             <div class="input-group-append">
                                 <span class="input-group-text">ft<sup>3</sup>/s</span>
                             </div>
@@ -63,15 +66,24 @@
             <button class="btn btn-outline-primary" (click)="calculateCoefficients()">Számol</button>
         </div>
 
-        <plotly-plot [data]="scatterData" [layout]="scatterLayout" class="scatter-plot"></plotly-plot>
+        @if (resultCalculated) {
+        <div id="results">
+            <plotly-plot [data]="scatterData" [layout]="scatterLayout" class="scatter-plot"></plotly-plot>
 
-        <p class="mt-2" [formGroup]="regressionForm">
-            A kiszámolt együtthatóknak köszönhetően egyszerűen kideríthetjük, hogy a mérések alapján egy
-            <input type="number" min="0" step="0.01" id="diameter" formControlName="diameter">
-            ft átmérővel rendelkező,
-            <input type="number" min="0" step="0.001" id="slope" formControlName="slope"> ft/ft lejtésű csövön legfeljebb kb.
-            <span class="fw-bold">{{ calculatedFlow | number : '1.2-2' : 'hu' }} ft<sup>3</sup></span>
-            folyadék juthat át másodpercenként.
-        </p>
+            <p class="mt-2" [formGroup]="regressionForm">
+                A kiszámolt együtthatóknak köszönhetően egyszerűen kideríthetjük, hogy a mérések alapján egy
+                <input type="number" class="inline-input" min="0" step="0.01" id="diameter" formControlName="diameter">
+                ft átmérővel rendelkező,
+                <input type="number" class="inline-input" min="0" step="0.001" id="slope" formControlName="slope"> ft/ft
+                lejtésű csövön legfeljebb kb. <span class="fw-bold">{{ calculatedFlow | number : '1.2-2' : 'hu' }}
+                    ft<sup>3</sup></span>
+                folyadék juthat át másodpercenként.
+            </p>
+
+            <p>Megtetszett a numerikus módszerek világa?</p>
+            <button class="btn btn-outline-primary" (click)="nextPage()">Igen, és szeretnék többet megtudni róla!</button>
+        </div>
+
+        }
     </div>
 </div>

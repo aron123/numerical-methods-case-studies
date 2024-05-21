@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-12">
-        <h1>Csősúrlódás</h1>
+        <h1>Csősúrlódás számítása gyökkereséssel</h1>
         <small>A 8.4. fejezet alapján.</small>
         <hr>
 
@@ -8,8 +8,7 @@
             A csövekben áramló folyadékok fizikai tulajdonságainak meghatározása fontos különböző
             mérnöki és tudományos területeken, például a gépészetben és a repüléstudományban.
             A <span class="fst-italic">súrlódási tényező</span> (<app-latex inputString="$f$"></app-latex>)
-            kiszámítására turbulens áramlás
-            esetén az ún. „Colebrook-egyenlet” alkalmazható:
+            kiszámítására turbulens áramlás esetén a Colebrook-egyenlet alkalmazható:
         </p>
         <p class="text-center">
             <app-latex
@@ -193,8 +192,13 @@
                 alatt adott megfelelő pontosságú eredményt),
                 de ehhez jó kezdeti tippre volt szükség.<br>Nem létezik azonban általános módszer, ami minden típusú
                 problémára optimálisan alkalmazható,
-                a felhasználóknak szükséges megérteniük a különböző numerikus módszerek előnyeit és hátrányait.
+                ezért fontos tisztában lenni a különféle numerikus eljárások előnyeivel és hátrányaival is.
             </p>
+
+            <p>
+                A gyökkeresés nagyon izgalmas feladat, de vajon egyenletrendszereket is meg tudunk oldani numerikus módszerekkel?
+            </p>
+            <button class="btn btn-outline-primary" (click)="nextPage()">Lássuk!</button>
             }
         </div>
         }
