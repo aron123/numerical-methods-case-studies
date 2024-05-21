@@ -1,22 +1,25 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { LUDecompositionService } from '../services/l-u-decomposition.service';
 import { FlowExperimentData, RegressionResult } from '../models/flow-data.models';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import * as Plotly from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
+import { DecimalPipe } from '@angular/common';
 PlotlyModule.plotlyjs = Plotly;
 
 @Component({
   selector: 'app-data-analysis',
   standalone: true,
-  imports: [FormsModule, PlotlyModule],
+  imports: [FormsModule, PlotlyModule, ReactiveFormsModule, DecimalPipe],
   providers: [LUDecompositionService],
   templateUrl: './data-analysis.component.html',
   styleUrl: './data-analysis.component.css'
 })
-export class DataAnalysisComponent {
+export class DataAnalysisComponent implements OnInit {
   luDecompositionService = inject(LUDecompositionService);
+
+  formBuilder = inject(FormBuilder);
 
   experimentalData: FlowExperimentData[] = [
     { diameter: 1, slope: 0.001, flow: 1.4 },
@@ -44,6 +47,26 @@ export class DataAnalysisComponent {
 
   scatterData: Plotly.Data[] = [];
   scatterLayout: Partial<Plotly.Layout> = {};
+
+  regressionForm = this.formBuilder.group<FlowExperimentData>({
+    diameter: 2.5,
+    slope: 0.025,
+    flow: NaN
+  });
+
+  calculatedFlow = 0;
+
+  ngOnInit(): void {
+    this.regressionForm.valueChanges.subscribe(value => {
+      const { diameter, slope } = value;
+
+      if (isNaN(diameter!) || isNaN(slope!)) {
+        return;
+      }
+
+      this.calculatedFlow = this.regression(diameter!, slope!);
+    });
+  }
 
   deleteRow(index: number) {
     if (index < 0 || index >= this.experimentalData.length) {
@@ -90,6 +113,11 @@ export class DataAnalysisComponent {
     };
 
     this.drawScatterPlot();
+    this.regressionForm.patchValue({}); // trigger 
+  }
+
+  regression(diameter: number, slope: number): number {
+    return this.solution.a0 * Math.pow(diameter, this.solution.a1) * Math.pow(slope, this.solution.a2);
   }
 
   drawScatterPlot() {
@@ -135,13 +163,10 @@ export class DataAnalysisComponent {
       };
     };
 
-    const regressionFunc = (diameter: number, slope: number) =>
-      this.solution.a0 * Math.pow(diameter, this.solution.a1) * Math.pow(slope, this.solution.a2);
-
     const xRange = [0, [...xData].sort((a, b) => a - b)[xData.length - 1]];
     const yRange = [0, [...yData].sort((a, b) => a - b)[yData.length - 1]];
 
-    const regressionPlaneTrace = generateRegressionPlane(xRange, yRange, regressionFunc);
+    const regressionPlaneTrace = generateRegressionPlane(xRange, yRange, this.regression.bind(this));
 
     const data: Plotly.Data[] = [scatterTrace, regressionPlaneTrace];
 

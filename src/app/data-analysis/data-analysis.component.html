@@ -64,5 +64,14 @@
         </div>
 
         <plotly-plot [data]="scatterData" [layout]="scatterLayout" class="scatter-plot"></plotly-plot>
+
+        <p class="mt-2" [formGroup]="regressionForm">
+            A kiszámolt együtthatóknak köszönhetően egyszerűen kideríthetjük, hogy a mérések alapján egy
+            <input type="number" min="0" step="0.01" id="diameter" formControlName="diameter">
+            ft átmérővel rendelkező,
+            <input type="number" min="0" step="0.001" id="slope" formControlName="slope"> ft/ft lejtésű csövön legfeljebb kb.
+            <span class="fw-bold">{{ calculatedFlow | number : '1.2-2' : 'hu' }} ft<sup>3</sup></span>
+            folyadék juthat át másodpercenként.
+        </p>
     </div>
 </div>
