@@ -7,12 +7,14 @@ import * as Plotly from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { LatexComponent } from '../latex/latex.component';
+import { LatexService } from '../services/latex.service';
 PlotlyModule.plotlyjs = Plotly;
 
 @Component({
   selector: 'app-data-analysis',
   standalone: true,
-  imports: [FormsModule, PlotlyModule, ReactiveFormsModule, DecimalPipe],
+  imports: [FormsModule, PlotlyModule, ReactiveFormsModule, DecimalPipe, LatexComponent],
   providers: [LUDecompositionService],
   templateUrl: './data-analysis.component.html',
   styleUrl: './data-analysis.component.css'
@@ -21,6 +23,8 @@ export class DataAnalysisComponent implements OnInit {
   luDecompositionService = inject(LUDecompositionService);
 
   formBuilder = inject(FormBuilder);
+
+  latexService = inject(LatexService);
 
   router = inject(Router);
 
@@ -41,6 +45,12 @@ export class DataAnalysisComponent implements OnInit {
     slope: 0.01,
     flow: 5.0
   }
+
+  coefficientsMatrix: number[][] = [];
+  resultMatrix: number[] = [];
+
+  equationMatrixLatexString = '';
+  solutionLatexString = '';
 
   solution: RegressionResult = {
     a0: NaN,
@@ -101,23 +111,31 @@ export class DataAnalysisComponent implements OnInit {
     const diameterFlowLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.diameter) * Math.log10(data.flow), 2));
     const slopeFlowLogSum = this.sum(this.experimentalData.map(data => Math.log10(data.slope) * Math.log10(data.flow), 2));
 
-    const equationMatrix = [
+    this.coefficientsMatrix = [
       [dataCount, diameterLogSum, slopeLogSum],
       [diameterLogSum, diameterSquareLogSum, productLogSum],
       [slopeLogSum, productLogSum, slopeSquareLogSum]
     ];
 
-    this.luDecompositionService.decompose(equationMatrix);
+    this.resultMatrix = [flowLogSum, diameterFlowLogSum, slopeFlowLogSum];
 
-    const solution = this.luDecompositionService.solve([flowLogSum, diameterFlowLogSum, slopeFlowLogSum]);
-
+    this.luDecompositionService.decompose(this.coefficientsMatrix);
+    const solution = this.luDecompositionService.solve(this.resultMatrix);
     this.solution = {
       a0: Math.pow(10, solution[0]),
       a1: solution[1],
       a2: solution[2]
     };
-    
+
     this.resultCalculated = true;
+
+    this.equationMatrixLatexString = `$$ ${this.latexService.toLaTeX(this.coefficientsMatrix, 3, 3, 3)}`
+      + `${this.latexService.toLaTeX([['log a_0'], ['a_1'], ['a_2']], 1, 3)}`
+      + ` = `
+      + `${this.latexService.toLaTeX([[this.resultMatrix[0]], [this.resultMatrix[1]], [this.resultMatrix[2]]], 1, 3, 3)} $$`;
+
+    this.solutionLatexString = `$$ a_0 = ${this.latexService.round(this.solution.a0)}, `
+      + `a_1 = ${this.latexService.round(this.solution.a1)}, a_2 = ${this.latexService.round(this.solution.a2)} $$`;
 
     this.drawScatterPlot();
     this.regressionForm.patchValue({});
@@ -179,7 +197,7 @@ export class DataAnalysisComponent implements OnInit {
     const data: Plotly.Data[] = [scatterTrace, regressionPlaneTrace];
 
     const layout: Partial<Plotly.Layout> = {
-      title: 'Többszörös lineáris regresszió',
+      title: 'Többszörös lineáris regresszió eredménye',
       scene: {
         xaxis: { title: 'Átmérő [ft]' },
         yaxis: { title: 'Meredekség [ft/ft]' },
@@ -187,14 +205,14 @@ export class DataAnalysisComponent implements OnInit {
         camera: {
           up: { x: 0, y: 0, z: 1 },
           center: {
-              x: -0.06634,
-              y: -0.02006,
-              z: -0.10017
+            x: -0.06634,
+            y: -0.02006,
+            z: -0.10017
           },
           eye: {
-              x: 1.65532,
-              y: -1.31202,
-              z: 0.19848
+            x: 1.65532,
+            y: -1.31202,
+            z: 0.19848
           }
         }
       },

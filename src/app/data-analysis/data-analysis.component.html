@@ -4,6 +4,19 @@
         <small>A 20.4. fejezet alapján.</small>
         <hr>
 
+        <p>
+            A mérnöki tudományokban gyakran előfordul, hogy egy tervezéshez használt változó több független változó értékétől függ,
+            például egy csőben a folyadékok áramlásának mértéke összefügg a cső átmérőjével és lejtésével. 
+        </p>
+
+        <p>
+            A gyakorlatban ez azt jelenti, hogy ha vannak mérései adataink több cső fizikai jellemzőire és a térfogatáramára vonatkozóan,
+            fel tudunk állítani egy olyan modellt, aminek segítségével egy tetszőleges tulajdonságokkal rendelkező cső térfogatáramát
+            becsülhetjük meg.
+        </p>
+
+        <p>Esetünkben legyenek adottak a következő mérési adatok:</p>
+
         <table class="table table-sm table-striped">
             <thead>
                 <tr>
@@ -68,6 +81,51 @@
 
         @if (resultCalculated) {
         <div id="results">
+            <p>
+                A feladat megoldásához lineáris regressziót alkalmazunk, a kiértékelendő hatvány-egyenlet a következő:
+            </p>
+
+            <p class="text-center">
+                <app-latex inputString="$Q = a_{0} \cdot D^{a_{1}} \cdot S^{a_{2}}$"></app-latex>
+            </p>
+
+            Ahol:
+            <ul>
+                <li><app-latex inputString="$Q$"></app-latex> a térfogatáram [ft<sup>3</sup>/s],</li>
+                <li><app-latex inputString="$S$"></app-latex> a meredekség vagy lejtés [ft/ft],</li>
+                <li><app-latex inputString="$D$"></app-latex> a cső átmérője [ft].</li>
+            </ul>
+
+            <p>
+                Vegyük az egyenlet 10-es alapú logaritmusát:
+            </p>
+            <p class="text-center">
+                <app-latex inputString="$\log_{10} Q = \log_{10} a_0 + a_1 \log_{10} D + a_2 \log_{10} S$"></app-latex>
+            </p>
+            <p>
+                Ebben a formában az egyenlet használható a többszörös lineáris regresszióhoz, hiszen
+                <app-latex inputString="$\log_{10} Q$"></app-latex> lineáris függvénye a
+                <app-latex inputString="$\log_{10} S$"></app-latex> és a <app-latex inputString="$\log_{10} D$"></app-latex>
+                értékeknek. A szükséges egyenletrendszer mátrix formában a következőképpen írható le:
+            </p>
+
+            <p class="text-center">
+                <app-latex [inputString]="equationMatrixLatexString"></app-latex>
+            </p>
+
+            <p>
+                Az egyenletrendszer tetszőleges módszerrel, például a korábban bemutatott LU-dekompozícióval
+                vagy Gauss-eliminációval megoldható, az együtthatók értéke:
+            </p>
+            <p>
+                <app-latex [inputString]="solutionLatexString"></app-latex>
+            </p>
+
+            <p>
+                A következő diagram az eredetileg mért értékeket kék pontokkal, az ezekre
+                többszörös lineáris regresszió segítségével illesztett felületet pedig narancssárgával jelzi.
+            </p>
+
             <plotly-plot [data]="scatterData" [layout]="scatterLayout" class="scatter-plot"></plotly-plot>
 
             <p class="mt-2" [formGroup]="regressionForm">
@@ -75,7 +133,7 @@
                 <input type="number" class="inline-input" min="0" step="0.01" id="diameter" formControlName="diameter">
                 ft átmérővel rendelkező,
                 <input type="number" class="inline-input" min="0" step="0.001" id="slope" formControlName="slope"> ft/ft
-                lejtésű csövön legfeljebb kb. <span class="fw-bold">{{ calculatedFlow | number : '1.2-2' : 'hu' }}
+                lejtésű csövön kb. <span class="fw-bold">{{ calculatedFlow | number : '1.2-2' : 'hu' }}
                     ft<sup>3</sup></span>
                 folyadék juthat át másodpercenként.
             </p>
