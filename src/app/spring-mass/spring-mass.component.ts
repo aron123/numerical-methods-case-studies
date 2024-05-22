@@ -4,6 +4,7 @@ import { LUDecompositionService } from '../services/l-u-decomposition.service';
 import { Mass, Spring, SpringMassParameters } from '../models/spring-mass.models';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LatexService } from '../services/latex.service';
 
 @Component({
   selector: 'app-spring-mass',
@@ -17,6 +18,8 @@ export class SpringMassComponent implements AfterViewInit {
   luDecompositionService = inject(LUDecompositionService);
 
   formBuilder = inject(FormBuilder);
+
+  latexService = inject(LatexService);
 
   router = inject(Router);
 
@@ -63,28 +66,6 @@ export class SpringMassComponent implements AfterViewInit {
     this.context = this.canvas.nativeElement.getContext('2d')!;
   }
 
-  round(num: number, decimals: number = 2) {
-    return Number.isInteger(num) ? num : Number.prototype.toFixed.call(num || 0, decimals);
-  }
-
-  toLaTeX(matrix: number[][], w: number = 3, h: number = 3, decimals: number = 2) {
-    let result = "\\begin{bmatrix}";
-
-    for (let i = 0; i < h; i++) {
-      if (i != 0) {
-        result += " \\\\";
-      }
-
-      for (let j = 0; j < w; j++) {
-        result += (j == 0 ? ' ' : ' & ') + this.round(matrix[i][j], decimals);
-      }
-    }
-
-    result += " \\end{bmatrix}";
-
-    return result;
-  }
-
   calculateEquation() {
     const { m1, m2, m3, k } = this.springMassForm.value as SpringMassParameters;
     const g = 9.81;
@@ -96,10 +77,10 @@ export class SpringMassComponent implements AfterViewInit {
     ]
 
     this.luDecompositionService.decompose(inputMatrix);
-    this.luDecompositionEquation = `$$ ${this.toLaTeX(inputMatrix)} = ${this.toLaTeX(this.luDecompositionService.getL())} \\cdot ${this.toLaTeX(this.luDecompositionService.getU())} $$`;
+    this.luDecompositionEquation = `$$ ${this.latexService.toLaTeX(inputMatrix)} = ${this.latexService.toLaTeX(this.luDecompositionService.getL())} \\cdot ${this.latexService.toLaTeX(this.luDecompositionService.getU())} $$`;
   
     const solution = this.luDecompositionService.solve([m1 * g, m2 * g, m3 * g]);
-    this.equationSystemSolution = `$$ x_1 = ${this.round(solution[0])}, x_2 = ${this.round(solution[1])}, x_3 = ${this.round(solution[2])} $$`;
+    this.equationSystemSolution = `$$ x_1 = ${this.latexService.round(solution[0])}, x_2 = ${this.latexService.round(solution[1])}, x_3 = ${this.latexService.round(solution[2])} $$`;
   
     this.draw(solution[0], solution[1], solution[2]);
 
@@ -217,9 +198,9 @@ export class SpringMassComponent implements AfterViewInit {
     this.masses.forEach(this.drawDashedLine.bind(this));
     this.masses.forEach(this.drawMass.bind(this));
 
-    this.drawArrow(this.masses[1], this.masses[5], `x₁ = ${this.round(x1)}`, 520);
-    this.drawArrow(this.masses[2], this.masses[6], `x₂ = ${this.round(x2)}`, 620);
-    this.drawArrow(this.masses[3], this.masses[7], `x₃ = ${this.round(x3)}`, 710);
+    this.drawArrow(this.masses[1], this.masses[5], `x₁ = ${this.latexService.round(x1)}`, 520);
+    this.drawArrow(this.masses[2], this.masses[6], `x₂ = ${this.latexService.round(x2)}`, 620);
+    this.drawArrow(this.masses[3], this.masses[7], `x₃ = ${this.latexService.round(x3)}`, 710);
   }
 
   scrollTo(id: string) {

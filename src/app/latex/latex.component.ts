@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { LatexService } from "../services/math-jax.service";
+import { MathJaxService } from "../services/math-jax.service";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 import { extractMath } from 'extract-math'
 
@@ -19,7 +19,7 @@ export class LatexComponent implements OnChanges {
   
   _safeHtml: SafeHtml | undefined;
 
-  constructor(private domSanitizer: DomSanitizer, private latexService: LatexService) {}
+  constructor(private domSanitizer: DomSanitizer, private latexService: MathJaxService) {}
 
   ngOnChanges() {
     this._html = [];
